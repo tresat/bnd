@@ -13,7 +13,7 @@ dependencies {
 }
 
 java {
-    modularity.inferModulePath.set(false)
+    modularity.inferModulePath = false
 }
 
 tasks.withType(Jar).configureEach {
@@ -23,8 +23,18 @@ tasks.withType(Jar).configureEach {
     doLast(bundle.buildAction())
 }
 
-logger.warn("Gradle version: " + gradle.gradleVersion)
+tasks.register("resolve") {
+    def version = gradle.gradleVersion
+    def files = configurations.compileClasspath.files
 
-// If present, causes beforeLocking running prior to Jar task configuration and causes classes to always be retrieved
-// If absent, BND adds lib properly prior to beforeLocking running and causes libs to always be retrieved even with 8.2
-//configurations.compileClasspath.each { println it }
+    doLast {
+        logger.warn("Gradle version: " + version)
+        files.each { logger.warn("Compile classpath: " + it) }
+
+        if (version == "8.1") {
+            assert files[0].name == "util-1.7.8.jar"
+        } else {
+            assert files[0].name == "main"
+        }
+    }
+}

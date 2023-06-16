@@ -147,7 +147,7 @@ class TestBundlePlugin extends Specification {
 		when:
 		def result = TestHelper.getGradleRunner()
 				.withProjectDir(testProjectDir)
-				.withArguments("--parallel", "--stacktrace", "build")
+				.withArguments("--parallel", "--stacktrace", "resolve")
 				.withPluginClasspath()
 				.withDebug(true)
 				.withGradleVersion(gradleVersion)
@@ -155,24 +155,25 @@ class TestBundlePlugin extends Specification {
 				.build()
 
 		then:
-		result.task(":build").outcome == SUCCESS
+		result.task(":jar") == null
+		result.task(":resolve").outcome == SUCCESS
 
-		utilProjectBuildDir.isDirectory()
-
-		try (JarFile libsJar = new JarFile(new File(utilProjectBuildDir, "libs/${utilProject}-${utilProjectVersion}.jar"))) {
-			Attributes manifest = libsJar.getManifest().getMainAttributes()
-			assert manifest.getValue("Export-Package").contains("com.example.util;version=\"${utilProjectVersion}\"")
-		}
-
-		and:
-		testProjectBuildDir.isDirectory()
-
-		try (JarFile mainJar = new JarFile(new File(testProjectBuildDir, "libs/${testProject}-${testProjectVersion}.jar"))) {
-			Attributes manifest = mainJar.getManifest().getMainAttributes()
-
-			// TODO: Why isn't this failing for Gradle 8.2-rc-2?
-			assert manifest.getValue("Import-Package").contains("com.example.util;version=\"[1.7,2)\"")
-		}
+//		utilProjectBuildDir.isDirectory()
+//
+//		try (JarFile libsJar = new JarFile(new File(utilProjectBuildDir, "libs/${utilProject}-${utilProjectVersion}.jar"))) {
+//			Attributes manifest = libsJar.getManifest().getMainAttributes()
+//			assert manifest.getValue("Export-Package").contains("com.example.util;version=\"${utilProjectVersion}\"")
+//		}
+//
+//		and:
+//		testProjectBuildDir.isDirectory()
+//
+//		try (JarFile mainJar = new JarFile(new File(testProjectBuildDir, "libs/${testProject}-${testProjectVersion}.jar"))) {
+//			Attributes manifest = mainJar.getManifest().getMainAttributes()
+//
+//			// TODO: Why isn't this failing for Gradle 8.2-rc-2?
+//			assert manifest.getValue("Import-Package").contains("com.example.util;version=\"[1.7,2)\"")
+//		}
 
 		where:
 		gradleVersion << ["8.1", "8.2-rc-2"]

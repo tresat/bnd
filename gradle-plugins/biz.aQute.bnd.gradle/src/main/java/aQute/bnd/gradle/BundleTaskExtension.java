@@ -216,13 +216,7 @@ public class BundleTaskExtension {
 		SourceSet mainSourceSet = sourceSets(project).getByName(SourceSet.MAIN_SOURCE_SET_NAME);
 		setSourceSet(mainSourceSet);
 
-		//task.getLogger().warn("classpath:");
-		mainSourceSet.getCompileClasspath().getFiles().forEach(f -> {
-			task.getLogger().warn("Compile classpath: " + f.getName());
-		});
-
 		classpath(mainSourceSet.getCompileClasspath());
-
 //		ArtifactView jarView = task.getProject().getConfigurations().getByName(mainSourceSet.getCompileClasspathConfigurationName()).getIncoming().artifactView(new Action<ArtifactView.ViewConfiguration>() {
 //			@Override
 //			public void execute(ArtifactView.ViewConfiguration viewConfiguration) {
