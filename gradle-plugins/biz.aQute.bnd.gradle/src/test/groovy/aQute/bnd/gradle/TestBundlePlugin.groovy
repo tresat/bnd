@@ -129,6 +129,55 @@ class TestBundlePlugin extends Specification {
 		result.task(":jar").outcome == UP_TO_DATE
 	}
 
+	def "Test Bnd Manifest Building With Local Project Dependency (Gradle = #gradleVersion)"() {
+		given:
+		String testProject = "builderplugin5"
+		String utilProject = "util"
+		String testProjectVersion = "2.5.1"
+		String utilProjectVersion = "1.7.8"
+
+		File testProjectDir = new File(testResources, testProject).canonicalFile
+		assert testProjectDir.isDirectory()
+		File testProjectBuildDir = new File(testProjectDir, "build").canonicalFile
+
+		File utilProjectDir = new File(testProjectDir, utilProject).canonicalFile
+		assert utilProjectDir.isDirectory()
+		File utilProjectBuildDir = new File(utilProjectDir, "build").canonicalFile
+
+		when:
+		def result = TestHelper.getGradleRunner()
+				.withProjectDir(testProjectDir)
+				.withArguments("--parallel", "--stacktrace", "build")
+				.withPluginClasspath()
+				.withDebug(true)
+				.withGradleVersion(gradleVersion)
+				.forwardOutput()
+				.build()
+
+		then:
+		result.task(":build").outcome == SUCCESS
+
+		utilProjectBuildDir.isDirectory()
+
+		try (JarFile libsJar = new JarFile(new File(utilProjectBuildDir, "libs/${utilProject}-${utilProjectVersion}.jar"))) {
+			Attributes manifest = libsJar.getManifest().getMainAttributes()
+			assert manifest.getValue("Export-Package").contains("com.example.util;version=\"${utilProjectVersion}\"")
+		}
+
+		and:
+		testProjectBuildDir.isDirectory()
+
+		try (JarFile mainJar = new JarFile(new File(testProjectBuildDir, "libs/${testProject}-${testProjectVersion}.jar"))) {
+			Attributes manifest = mainJar.getManifest().getMainAttributes()
+
+			// TODO: Why isn't this failing for Gradle 8.2-rc-2?
+			assert manifest.getValue("Import-Package").contains("com.example.util;version=\"[1.7,2)\"")
+		}
+
+		where:
+		gradleVersion << ["8.1", "8.2-rc-2"]
+	}
+
 	def "Test Bnd instruction via Provider"() {
 		given:
 		String testProject = "builderplugin2"

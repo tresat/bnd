@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
 
 import aQute.bnd.exceptions.Exceptions;
@@ -42,6 +43,10 @@ import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.ArtifactView;
+import org.gradle.api.attributes.AttributeContainer;
+import org.gradle.api.attributes.LibraryElements;
+import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
@@ -210,7 +215,22 @@ public class BundleTaskExtension {
 		outputDirectory = objects.directoryProperty();
 		SourceSet mainSourceSet = sourceSets(project).getByName(SourceSet.MAIN_SOURCE_SET_NAME);
 		setSourceSet(mainSourceSet);
+
+		//task.getLogger().warn("classpath:");
+		mainSourceSet.getCompileClasspath().getFiles().forEach(f -> {
+			task.getLogger().warn("Compile classpath: " + f.getName());
+		});
+
 		classpath(mainSourceSet.getCompileClasspath());
+
+//		ArtifactView jarView = task.getProject().getConfigurations().getByName(mainSourceSet.getCompileClasspathConfigurationName()).getIncoming().artifactView(new Action<ArtifactView.ViewConfiguration>() {
+//			@Override
+//			public void execute(ArtifactView.ViewConfiguration viewConfiguration) {
+//				viewConfiguration.attributes(attributeContainer -> attributeContainer.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LibraryElements.JAR)));
+//			}
+//		});
+//		classpath(jarView.getFiles());
+
 		properties = objects.mapProperty(String.class, Object.class)
 			.convention(Maps.of("project", "__convention__"));
 		defaultBundleSymbolicName = task.getArchiveBaseName()

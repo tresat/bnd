@@ -1,0 +1,20 @@
+import aQute.bnd.gradle.BundleTaskExtension
+
+plugins {
+    id "java-library"
+}
+
+group = "com.example.util"
+version = "1.7.8"
+
+java {
+    modularity.inferModulePath.set(false)
+}
+
+//tasks.withType(Jar).configureEach {
+tasks.jar {
+    BundleTaskExtension bundle = extensions.create(BundleTaskExtension.NAME, BundleTaskExtension.class, it)
+    bundle.bnd("""-exportcontents: com.example.util.*""")
+
+    doLast(bundle.buildAction())
+}
