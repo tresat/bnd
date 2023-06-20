@@ -1,6 +1,5 @@
 package aQute.bnd.gradle;
 
-import static aQute.bnd.gradle.BndUtils.jarLibraryElements;
 import static aQute.bnd.gradle.BndUtils.logReport;
 import static aQute.bnd.gradle.BndUtils.sourceSets;
 import static aQute.bnd.gradle.BndUtils.unwrap;
@@ -252,11 +251,7 @@ public class BndPlugin implements Plugin<Project> {
 				sourceSet.getOutput()
 					.setResourcesDir(destinationDir);
 				TaskProvider<AbstractCompile> compileTask = tasks.named(sourceSet.getCompileJavaTaskName(),
-					AbstractCompile.class, t -> {
-						t.getDestinationDirectory()
-							.fileValue(destinationDir);
-						jarLibraryElements(t, sourceSet.getCompileClasspathConfigurationName());
-					});
+					AbstractCompile.class, t -> t.getDestinationDirectory().fileValue(destinationDir));
 				generateInputAction.ifPresent(compileTask::configure);
 				sourceSet.getOutput()
 					.dir(Maps.of("builtBy", compileTask.getName()), destinationDir);
@@ -277,11 +272,7 @@ public class BndPlugin implements Plugin<Project> {
 				sourceSet.getOutput()
 					.setResourcesDir(destinationDir);
 				TaskProvider<AbstractCompile> compileTask = tasks.named(sourceSet.getCompileJavaTaskName(),
-					AbstractCompile.class, t -> {
-						t.getDestinationDirectory()
-							.fileValue(destinationDir);
-						jarLibraryElements(t, sourceSet.getCompileClasspathConfigurationName());
-					});
+					AbstractCompile.class, t -> t.getDestinationDirectory().fileValue(destinationDir));
 				sourceSet.getOutput()
 					.dir(Maps.of("builtBy", compileTask.getName()), destinationDir);
 			});

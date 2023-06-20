@@ -2,7 +2,6 @@ package aQute.bnd.gradle;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
@@ -11,8 +10,6 @@ import aQute.service.reporter.Report.Location;
 import org.gradle.api.Buildable;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.attributes.AttributeContainer;
-import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
@@ -26,24 +23,12 @@ import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.toolchain.JavaToolchainService;
 import org.gradle.jvm.toolchain.JavaToolchainSpec;
-import org.gradle.util.GradleVersion;
 
 /**
  * BndUtils class.
  */
 public class BndUtils {
 	private BndUtils() {}
-
-	/**
-	 * Return whether the current Gradle is at least the specified version.
-	 *
-	 * @param requestedVersion The requested Gradle version.
-	 * @return Whether the current Gradle is at least the specified version.
-	 */
-	public static boolean isGradleCompatible(String requestedVersion) {
-		return GradleVersion.current()
-			.compareTo(GradleVersion.version(requestedVersion)) >= 0;
-	}
 
 	/**
 	 * Log the Report information.
@@ -146,35 +131,6 @@ public class BndUtils {
 	 */
 	public static Optional<File> unwrapFileOptional(Provider<? extends FileSystemLocation> provider) {
 		return provider.isPresent() ? Optional.of(unwrapFile(provider)) : Optional.empty();
-	}
-
-	/**
-	 * Set the Library Element Attribute of the specified configuration's
-	 * attributes to Jar.
-	 *
-	 * @param task The Task.
-	 * @param configurationName The configuration name.
-	 */
-	public static void jarLibraryElements(Task task, String configurationName) {
-		Project project = task.getProject();
-		AttributeContainer attributes = project.getConfigurations()
-			.getByName(configurationName)
-			.getAttributes();
-		LibraryElements attribute = attributes.getAttribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE);
-		if ((attribute == null) || !Objects.equals(attribute.getName(), LibraryElements.JAR)) {
-			try {
-				attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects()
-					.named(LibraryElements.class, LibraryElements.JAR));
-				task.getLogger()
-					.info("Set {}:{} configuration attribute {} to {}", project.getPath(), configurationName,
-						LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-						attributes.getAttribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE));
-			} catch (IllegalArgumentException e) {
-				task.getLogger()
-					.info("Unable to set {}:{} configuration attribute {} to {}", project.getPath(), configurationName,
-						LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, LibraryElements.JAR, e);
-			}
-		}
 	}
 
 	/**

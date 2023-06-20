@@ -1,7 +1,6 @@
 package aQute.bnd.gradle;
 
 import static aQute.bnd.gradle.BndUtils.builtBy;
-import static aQute.bnd.gradle.BndUtils.jarLibraryElements;
 import static aQute.bnd.gradle.BndUtils.logReport;
 import static aQute.bnd.gradle.BndUtils.sourceSets;
 import static aQute.bnd.gradle.BndUtils.unwrap;
@@ -25,7 +24,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
 
 import aQute.bnd.exceptions.Exceptions;
